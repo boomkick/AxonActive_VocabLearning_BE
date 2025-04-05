@@ -1,0 +1,72 @@
+plugins {
+    id 'java'
+    id 'io.quarkus'
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+
+    // Correct Quarkus RESTEasy Reactive setup
+    implementation 'io.quarkus:quarkus-resteasy-reactive'
+    implementation 'io.quarkus:quarkus-resteasy-reactive-jackson'
+
+    // Quarkus Dependency Injection
+    implementation 'io.quarkus:quarkus-arc'
+
+    // Hibernate ORM
+    implementation "io.quarkus:quarkus-hibernate-orm"
+
+    // JDBC for PostgreSQL
+    implementation("io.quarkus:quarkus-jdbc-postgresql")
+
+    // Validation (Keeping javax.validation API)
+    implementation("javax.validation:validation-api:2.0.1.Final")
+
+    // LocalDate/Time Serialization for Jackson
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    // Test Dependencies
+    testImplementation 'io.quarkus:quarkus-junit5'
+    testImplementation 'io.rest-assured:rest-assured'
+
+    // MapStruct dependencies
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.36'
+    annotationProcessor 'org.projectlombok:lombok:1.18.36'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.36'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
+
+    // Make Lombok work with MapStruct
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
+    implementation 'io.quarkus:quarkus-security'
+    implementation 'io.quarkus:quarkus-oidc'
+    implementation 'io.quarkus:quarkus-smallrye-jwt'
+    implementation 'org.mindrot:jbcrypt:0.4'
+}
+
+group 'org.acme'
+version '1.0.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs.add('-parameters')
+}
+
+test {
+    systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+}
