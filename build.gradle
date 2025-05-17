@@ -49,8 +49,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 
     implementation 'io.quarkus:quarkus-security'
-    implementation 'io.quarkus:quarkus-oidc'
     implementation 'io.quarkus:quarkus-smallrye-jwt'
+    implementation("io.quarkus:quarkus-smallrye-jwt-build")
     implementation 'org.mindrot:jbcrypt:0.4'
 }
 

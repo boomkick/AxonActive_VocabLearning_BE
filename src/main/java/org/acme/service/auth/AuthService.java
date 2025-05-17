@@ -7,8 +7,8 @@ import jakarta.transaction.Transactional;
 import org.acme.service.account.Account;
 import org.acme.service.account.AccountDAO;
 import org.mindrot.jbcrypt.BCrypt;
-import java.util.Optional;
-import java.util.Set;
+
+import java.util.*;
 
 @ApplicationScoped
 public class AuthService {
@@ -16,8 +16,8 @@ public class AuthService {
     @Inject
     AccountDAO accountDAO;
 
-    public Optional<String> authenticate(String username, String password) {
-        Optional<Account> accountOpt = accountDAO.findByUsername(username);
+    public Optional<String> authenticate(String email, String password) {
+        Optional<Account> accountOpt = accountDAO.findByEmail(email);
         if (accountOpt.isPresent()) {
             Account account = accountOpt.get();
             if (BCrypt.checkpw(password, account.getPassword())) {
@@ -28,13 +28,21 @@ public class AuthService {
     }
 
     private String generateToken(Account account) {
-        return Jwt.issuer("https://yourdomain.com")
+        long now = System.currentTimeMillis() / 1000;
+        return Jwt.issuer("https://vocablearning.com/")
                 .subject(account.getId())
-                .claim("username", account.getUsername())
-                .claim("roles", Set.of("USER")) // Adjust roles if needed
-                .expiresAt(System.currentTimeMillis() / 1000 + 3600) // 1 hour expiry
+                .upn(account.getEmail())
+                .groups(Set.of("user")) // tất cả quyền của user
+                .claim("email", account.getEmail())
+                .claim("name", account.getName()) // nếu có name
+                .claim("avatar", account.getAvatar())
+                .claim("theme", account.getTheme())
+                .claim("id", account.getId())
+                .issuedAt(now)
+                .expiresAt(now + 3600) // 1 giờ
                 .sign();
     }
+
 
     @Transactional
     public void register(Account account) {

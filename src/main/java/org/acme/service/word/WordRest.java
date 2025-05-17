@@ -1,12 +1,16 @@
 package org.acme.service.word;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 import org.acme.service.word.dto.BulkRequestWordDTO;
 import org.acme.service.word.dto.RequestWordDTO;
 import org.acme.service.word.dto.ResponseWordDTO;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -19,7 +23,18 @@ import java.util.Objects;
 public class WordRest {
 
     @Inject
+    JsonWebToken jwt;
+
+    @Inject
     private WordService wordService;
+
+    @GET
+    @Path("/test-authen")
+    @RolesAllowed({ "user", "admin"})
+    public Response testAuthen(){
+        System.out.println("here");
+        return Response.ok().build();
+    }
 
     @POST
     public Response addWord(@Valid RequestWordDTO requestWordDTO) {

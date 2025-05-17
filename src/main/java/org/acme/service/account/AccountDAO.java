@@ -11,11 +11,11 @@ public class AccountDAO extends BaseDAO<Account> {
         super(Account.class);
     }
 
-    public Optional<Account> findByUsername(String username) {
+    public Optional<Account> findByEmail(String email) {
         TypedQuery<Account> query = entityManager.createQuery(
-                "SELECT a FROM Account a WHERE a.username =: username", Account.class
+                "SELECT a FROM Account a WHERE a.email =: email", Account.class
         );
-        query.setParameter("username", username);
+        query.setParameter("email", email);
 
         return query.getResultStream().findFirst();
     }

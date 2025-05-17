@@ -5,7 +5,11 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.acme.service.account.Account;
+import org.acme.service.account.AccountMapper;
+import org.acme.service.account.dto.RequestLoginAccountDTO;
+import org.acme.service.account.dto.RequestRegisterAccountDTO;
 
+import javax.validation.Valid;
 import java.util.Map;
 import java.util.Optional;
 
@@ -19,11 +23,8 @@ public class AuthRest {
 
     @POST
     @Path("/login")
-    public Response login(Map<String, String> credentials) {
-        String username = credentials.get("username");
-        String password = credentials.get("password");
-
-        Optional<String> tokenOpt = authService.authenticate(username, password);
+    public Response login(@Valid RequestLoginAccountDTO requestLoginAccountDTO) {
+        Optional<String> tokenOpt = authService.authenticate(requestLoginAccountDTO.getEmail(), requestLoginAccountDTO.getPassword());
         if (tokenOpt.isPresent()) {
             return Response.ok(Map.of("token", tokenOpt.get())).build();
         }
@@ -32,8 +33,8 @@ public class AuthRest {
 
     @POST
     @Path("/register")
-    public Response register(Account account) {
-        authService.register(account);
+    public Response register(@Valid RequestRegisterAccountDTO requestRegisterAccountDTO) {
+        authService.register(AccountMapper.INSTANCE.toAccount(requestRegisterAccountDTO));
         return Response.status(Response.Status.CREATED).build();
     }
 }
