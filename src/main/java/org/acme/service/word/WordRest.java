@@ -30,7 +30,7 @@ public class WordRest {
 
     @GET
     @Path("/test-authen")
-    @RolesAllowed({ "USER"})
+    @RolesAllowed({ "user", "admin"})
     public Response testAuthen(){
         System.out.println("here");
         return Response.ok().build();

@@ -3,6 +3,7 @@ package org.acme.base.entity;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 @Setter
 @MappedSuperclass
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+@ApplicationScoped
 public class BaseEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

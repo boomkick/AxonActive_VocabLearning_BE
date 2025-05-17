@@ -8,7 +8,7 @@ import org.acme.service.account.Account;
 import org.acme.service.account.AccountDAO;
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.util.Optional;
+import java.util.*;
 
 @ApplicationScoped
 public class AuthService {
@@ -28,17 +28,21 @@ public class AuthService {
     }
 
     private String generateToken(Account account) {
-        return Jwt.issuer("https://yourdomain.com")
+        long now = System.currentTimeMillis() / 1000;
+        return Jwt.issuer("https://vocablearning.com/")
                 .subject(account.getId())
+                .upn(account.getEmail())
+                .groups(Set.of("user")) // tất cả quyền của user
                 .claim("email", account.getEmail())
-                .claim("name", "name")
-                .claim("avatar", "avatar")
-                .claim("theme", "theme")
+                .claim("name", account.getName()) // nếu có name
+                .claim("avatar", account.getAvatar())
+                .claim("theme", account.getTheme())
                 .claim("id", account.getId())
-                .claim("role", account.getRole()) // Adjust roles if needed
-                .expiresAt(System.currentTimeMillis() / 1000 + 3600) // 1 hour expiry
+                .issuedAt(now)
+                .expiresAt(now + 3600) // 1 giờ
                 .sign();
     }
+
 
     @Transactional
     public void register(Account account) {
