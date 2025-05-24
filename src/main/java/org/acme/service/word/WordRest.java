@@ -8,6 +8,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.acme.service.word.dto.BulkRequestWordDTO;
+import org.acme.service.word.dto.RequestPatchWordDTO;
 import org.acme.service.word.dto.RequestWordDTO;
 import org.acme.service.word.dto.ResponseWordDTO;
 import org.eclipse.microprofile.jwt.JsonWebToken;
@@ -28,22 +29,15 @@ public class WordRest {
     @Inject
     private WordService wordService;
 
-    @GET
-    @Path("/test-authen")
-    @RolesAllowed({ "user", "admin"})
-    public Response testAuthen(){
-        System.out.println("here");
-        return Response.ok().build();
-    }
-
     @POST
+    @RolesAllowed({"user", "admin"})
     public Response addWord(@Valid RequestWordDTO requestWordDTO) {
-        return Response.status(Response.Status.CREATED)
-                .entity(wordService.add(requestWordDTO)).build();
+        return Response.status(Response.Status.CREATED).entity(wordService.add(requestWordDTO, jwt.getClaim("id"))).build();
     }
 
     @GET
     @Path("/{id}")
+    @RolesAllowed({"user", "admin"})
     public Response findWordById(@PathParam("id") String id) {
         ResponseWordDTO word = wordService.findWordById(id);
         if (word == null) {
@@ -53,18 +47,20 @@ public class WordRest {
     }
 
     @GET
+    @RolesAllowed({"user", "admin"})
     public Response findAllWords(@QueryParam("isToday") Boolean isToday) {
         List<Word> result = new ArrayList<Word>();
         if (Objects.nonNull(isToday) && isToday) {
-            result = wordService.findWordsRepeatTodayByAccountId();
+            result = wordService.findWordsRepeatTodayByAccountId(jwt.getClaim("id"));
         } else {
-            result = wordService.findAllByAccountId();
+            result = wordService.findAllByAccountId(jwt.getClaim("id"));
         }
         return Response.ok(result.stream().map(WordMapper.INSTANCE::toResponseWordDTO).toList()).build();
     }
 
     @DELETE
     @Path("/{id}")
+    @RolesAllowed({"user", "admin"})
     public Response removeWord(@PathParam("id") String id) {
         wordService.removeWord(id);
         return Response.accepted().build();
@@ -72,13 +68,24 @@ public class WordRest {
 
     @PUT
     @Path("/{id}")
+    @RolesAllowed({"user", "admin"})
     public Response updateWord(@PathParam("id") String id, RequestWordDTO requestWordDTO) {
-        return Response.ok(wordService.updateWord(id, requestWordDTO)).build();
+        wordService.updateWord(id, requestWordDTO);
+        return Response.ok().build();
     }
 
     @POST
     @Path("/bulk")
+    @RolesAllowed({"user", "admin"})
     public Response createBulkWords(BulkRequestWordDTO bulkRequest) {
-        return Response.status(Response.Status.CREATED).entity(wordService.createBulkWords(bulkRequest)).build();
+        return Response.status(Response.Status.CREATED).entity(wordService.createBulkWords(bulkRequest, jwt.getClaim("id"))).build();
+    }
+
+    @PATCH
+    @Path("/{id}")
+    @RolesAllowed({"user", "admin"})
+    public Response updatePartialWord(@PathParam("id") String id, @Valid RequestPatchWordDTO requestPatchWordDTO) {
+        wordService.updatePartialWord(id, requestPatchWordDTO);
+        return Response.ok().build();
     }
 }

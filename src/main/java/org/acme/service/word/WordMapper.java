@@ -3,7 +3,6 @@ package org.acme.service.word;
 import org.acme.service.word.dto.RequestWordDTO;
 import org.acme.service.word.dto.ResponseWordDTO;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
