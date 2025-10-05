@@ -2,6 +2,7 @@ package org.acme.service.word;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.TypedQuery;
+import jakarta.transaction.Transactional;
 import org.acme.base.dao.BaseDAO;
 
 import java.util.List;
@@ -12,6 +13,7 @@ public class WordDAO extends BaseDAO<Word> {
         super(Word.class);
     }
 
+    @Transactional
     public List<Word> findAllByAccountId(String accountId) {
         TypedQuery<Word> query = entityManager.createQuery("SELECT w FROM Word w WHERE w.account.id = :accountId", Word.class);
         query.setParameter("accountId", accountId);

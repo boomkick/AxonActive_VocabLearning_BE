@@ -29,6 +29,8 @@ public class Word extends BaseEntity {
     private String statusDay2;
     private LocalDate repeatDay3;
     private String statusDay3;
+
+    @Column(columnDefinition = "TEXT")
     private String story;
 
     @ManyToOne(fetch = FetchType.EAGER)

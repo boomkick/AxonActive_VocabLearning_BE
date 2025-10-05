@@ -8,6 +8,7 @@ import jakarta.ws.rs.NotFoundException;
 import org.acme.service.account.Account;
 import org.acme.service.account.AccountDAO;
 import org.acme.service.account.dto.ResponseLoginAccountDTO;
+import org.acme.shared.constant.Constant;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -31,8 +32,8 @@ public class AuthService {
             Account account = accountOpt.get();
             if (BCrypt.checkpw(password, account.getPassword())) {
                 long now = System.currentTimeMillis() / 1000;
-                long expiresTime = now + 5;
-                long expiresRefreshTime = now + (5 * 3);
+                long expiresTime = now + Constant.EXPIRED_TIME;
+                long expiresRefreshTime = now + (Constant.EXPIRED_TIME * 3);
                 ResponseLoginAccountDTO responseTokenAccountDTO = new ResponseLoginAccountDTO();
                 responseTokenAccountDTO.setAccessToken(generateToken(account, now));
                 responseTokenAccountDTO.setRefreshToken(generateRefreshToken(account, now));
@@ -57,9 +58,9 @@ public class AuthService {
                 Account account = accountOpt.get();
                 ResponseLoginAccountDTO responseLoginAccountDTO = new ResponseLoginAccountDTO();
                 responseLoginAccountDTO.setAccessToken(generateToken(account, now));
-                responseLoginAccountDTO.setExpiresIn(now + 5);
+                responseLoginAccountDTO.setExpiresIn(now + Constant.EXPIRED_TIME);
                 responseLoginAccountDTO.setRefreshToken(generateRefreshToken(account, now));
-                responseLoginAccountDTO.setRefreshExpiresIn(now + 5 * 3);
+                responseLoginAccountDTO.setRefreshExpiresIn(now + Constant.EXPIRED_TIME * 3);
                 return responseLoginAccountDTO;
             }
             throw new RuntimeException("Account not found");
@@ -78,13 +79,13 @@ public class AuthService {
                 .claim("theme", account.getTheme())
                 .claim("id", account.getId())
                 .issuedAt(currentTime)
-                .expiresAt(currentTime + 5) // 1 giờ
+                .expiresAt(currentTime + Constant.EXPIRED_TIME) // 1 giờ
                 .sign();
     }
 
     @Transactional
     public String generateRefreshToken(Account account, long currentTime) {
-        long expiresAt = currentTime + (5 * 3);
+        long expiresAt = currentTime + (Constant.EXPIRED_TIME * 3);
         LocalDateTime expiresAtFormat = LocalDateTime.ofInstant(
                 Instant.ofEpochSecond(expiresAt),
                 ZoneId.systemDefault()
@@ -108,8 +109,11 @@ public class AuthService {
     }
 
     private void revokeRefreshToken(String refreshTokenId) {
-        RefreshToken refreshToken = refreshTokenDAO.findById(refreshTokenId).orElseThrow(() -> new NotFoundException("Refresh token is invalid"));
-        refreshToken.setIsRevoked(true);
+        if (refreshTokenId != null && !refreshTokenId.equals("")) {
+            RefreshToken refreshToken = refreshTokenDAO.findById(refreshTokenId)
+                    .orElseThrow(() -> new NotFoundException("Refresh token is invalid or mistake with access token."));
+            refreshToken.setIsRevoked(true);
+        }
     }
 
 

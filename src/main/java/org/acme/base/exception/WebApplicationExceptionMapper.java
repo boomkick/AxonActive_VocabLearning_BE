@@ -14,21 +14,12 @@ public class WebApplicationExceptionMapper implements ExceptionMapper<WebApplica
     @Override
     public Response toResponse(WebApplicationException exception) {
         int status = exception.getResponse().getStatus();
-        String message;
-
-        switch (status) {
-            case 404:
-                message = "Resource not found";
-                break;
-            case 405:
-                message = "Method not allowed";
-                break;
-            case 415:
-                message = "Unsupported media type";
-                break;
-            default:
-                message = exception.getMessage() != null ? exception.getMessage() : "Request failed";
-        }
+        String message = switch (status) {
+            case 404 -> "Resource not found";
+            case 405 -> "Method not allowed";
+            case 415 -> "Unsupported media type";
+            default -> exception.getMessage() != null ? exception.getMessage() : "Request failed";
+        };
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .message(message)
